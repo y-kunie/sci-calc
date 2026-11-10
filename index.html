@@ -21,6 +21,7 @@
     font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;
     -webkit-user-select:none; user-select:none;
     touch-action:manipulation; overscroll-behavior:none;
+    overflow:hidden;
   }
   .face {
     width:100%; max-width:420px; height:100dvh;
@@ -28,6 +29,7 @@
     display:flex; flex-direction:column;
     padding:calc(env(safe-area-inset-top,0px) + 8px) 13px calc(env(safe-area-inset-bottom,0px) + 10px);
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    transform-origin:top center;
   }
   /* ---------- header ---------- */
   .hdr { display:flex; align-items:baseline; gap:10px; padding:2px 4px 0; }
@@ -389,6 +391,18 @@ const CW = GW * DOT, CH = GH * DOT;  // char cell
 const INK = '#2a2f26', GHOST = 'rgba(42,47,38,0.022)';
 let cssW = 0, cssH = 0, cols = 20, visRows = 2, scrollRow = 0;
 
+/* 幅 420px を超える画面 (iPad の分割表示など) では、電卓全体を拡大して幅いっぱいに広げる。
+   縦がはみ出す場合は縦に収まる倍率までにとどめる。 */
+let uiScale = 1;
+function fitFace() {
+  const f = document.querySelector('.face');
+  const W = window.innerWidth, Hh = window.innerHeight;
+  const s = Math.min(W / 420, Hh / FIT_H);
+  if (s > 1.001) { uiScale = s; f.style.transform = 'scale(' + s + ')'; f.style.height = (Hh / s) + 'px'; }
+  else { uiScale = 1; f.style.transform = ''; f.style.height = ''; }
+}
+const FIT_H = 880;                   // キーが最大サイズになる電卓の高さ (css px)
+
 function setupCanvas() {
   const parent = cv.parentElement;
   const w = parent.clientWidth - 16;
@@ -396,7 +410,7 @@ function setupCanvas() {
   const h = 15 + visRows * (CH + 4) + 6 + 46;
   if (w !== cssW || h !== cssH) {
     cssW = w; cssH = h;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.devicePixelRatio || 1) * uiScale;   // 拡大表示でもにじまないように
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
     cv.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -987,8 +1001,9 @@ document.addEventListener('touchend', e => {
 setInterval(() => {
   if (power && mode === 'input' && !menu) { blinkOn = !blinkOn; drawAll(); }
 }, 550);
-window.addEventListener('resize', () => { cssW = 0; drawAll(); });
+window.addEventListener('resize', () => { fitFace(); cssW = 0; drawAll(); });
 
+fitFace();
 drawAll();
 
 /* test hooks */
