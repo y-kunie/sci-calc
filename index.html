@@ -494,6 +494,9 @@ function fmtParts(x) {
     return { mant: String(ms), exp: e };
   }
   let s = parseFloat(x.toPrecision(10)).toString();
+  // 1 未満は先頭の 0 も 1 桁に数える (実機と同じ 10 桁表示)。有効数字 10 桁のままだと
+  // 0.02386994449 のように 11 桁を超えて左端が見切れる。
+  if (a < 1) { s = x.toFixed(9).replace(/0+$/, ''); }
   if (s.includes('e')) { const [m, e] = s.split('e'); return { mant: m, exp: parseInt(e, 10) }; }
   if (!s.includes('.')) s += '.';
   return { mant: s, exp: null };
@@ -1013,7 +1016,7 @@ drawAll();
    ホーム画面の Web アプリは開きっぱなしになり、公開側を更新しても古い画面のままになる。
    画面が表に出るたびに公開中のファイルの BUILD を見て、違っていたら読み込み直す。
    BUILD は publish.py が公開のたびに書き換える。 */
-const BUILD = '20261110-153409';
+const BUILD = '20261112-225702';
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
 let updBusy = false;
 async function checkUpdate() {
