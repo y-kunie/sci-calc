@@ -35,6 +35,7 @@
   .hdr .sc { color:#c9ccd4; font-size:8.5px; letter-spacing:1.1px; font-weight:600; }
   .hdr .model { color:#f0f1f5; font-size:16px; font-style:italic; font-family:Georgia,"Times New Roman",serif; margin-left:auto; }
   .hgap { height:8px; }
+  .hdr .ver { margin-left:auto; color:#6f727c; font-size:8px; letter-spacing:.5px; font-variant-numeric:tabular-nums; }
   /* ---------- LCD ---------- */
   .bezel {
     background:linear-gradient(180deg,#161618,#1d1d20);
@@ -170,7 +171,7 @@
 </head>
 <body>
 <div class="face">
-  <div class="hdr"><span class="sc">SCIENTIFIC&nbsp;CALCULATOR</span></div>
+  <div class="hdr"><span class="sc">SCIENTIFIC&nbsp;CALCULATOR</span><span class="ver" id="ver"></span></div>
   <div class="hgap"></div>
 
   <div class="bezel"><div class="lcd"><canvas id="cv"></canvas></div></div>
@@ -1024,7 +1025,9 @@ drawAll();
    ホーム画面の Web アプリは開きっぱなしになり、公開側を更新しても古い画面のままになる。
    画面が表に出るたびに公開中のファイルの BUILD を見て、違っていたら読み込み直す。
    BUILD は publish.py が公開のたびに書き換える。 */
-const BUILD = '20261116-115414';
+const BUILD = '20261116-115929';
+// 右上に版 (公開日時) を小さく出す。更新が届いたかどうかの目印
+try { document.getElementById('ver').textContent = /^\d{8}-\d{6}$/.test(BUILD) ? 'v' + BUILD.slice(4, 6) + '.' + BUILD.slice(6, 8) + '-' + BUILD.slice(9, 13) : BUILD; } catch (e) {}
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
 let updBusy = false;
 async function checkUpdate() {
