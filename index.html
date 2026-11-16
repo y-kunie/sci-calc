@@ -181,9 +181,6 @@
   <div class="fngrid" id="fngrid"></div>
   <div class="npgrid" id="npgrid"></div>
   <div class="spacer"></div>
-  <label aria-hidden="true" style="position:fixed;left:-100px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden">
-    <input type="checkbox" switch id="hapswitch" tabindex="-1">
-  </label>
 </div>
 
 <script>
@@ -939,12 +936,20 @@ function press(k) {
 let fbOn = true;
 try { fbOn = localStorage.getItem('calc_fb') !== '0'; } catch (e) {}
 function saveFb() { try { localStorage.setItem('calc_fb', fbOn ? '1' : '0'); } catch (e) {} }
-const hapEl = document.getElementById('hapswitch');
 let ac = null;
 function feedback() {
   if (!fbOn) return;
   // haptic: iOS 17.4+ switch trick / Android vibrate
-  try { hapEl.click(); } catch (e) {}
+  // iOS はスイッチ型チェックボックスが切り替わるときに「コツッ」と振動する。input を直接 click() しても
+  // 振動しないので、紐づく label のほうを click する (毎回作って捨てる)。
+  try {
+    const lb = document.createElement('label'), sw = document.createElement('input');
+    lb.setAttribute('aria-hidden', 'true'); lb.style.display = 'none';
+    sw.type = 'checkbox'; sw.setAttribute('switch', '');
+    lb.appendChild(sw); document.head.appendChild(lb);
+    lb.click();
+    document.head.removeChild(lb);
+  } catch (e) {}
   try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) {}
   // short mechanical click
   try {
@@ -1016,7 +1021,7 @@ drawAll();
    ホーム画面の Web アプリは開きっぱなしになり、公開側を更新しても古い画面のままになる。
    画面が表に出るたびに公開中のファイルの BUILD を見て、違っていたら読み込み直す。
    BUILD は publish.py が公開のたびに書き換える。 */
-const BUILD = '20261112-225702';
+const BUILD = '20261116-113454';
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
 let updBusy = false;
 async function checkUpdate() {
