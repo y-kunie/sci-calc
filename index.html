@@ -58,20 +58,27 @@
   .tk { display:flex; flex-direction:column; align-items:center; gap:3px; }
   .tk .tl { font-size:9.5px; font-weight:700; letter-spacing:.5px; color:#e6e8ee; height:12px; display:flex; align-items:center; gap:3px; white-space:nowrap; }
   .tl.y { color:#e9c33f; } .tl.p { color:#e590a4; }
-  .tk button {
+  .tk .kb {
     width:100%; height:23px; border:none; cursor:pointer;
     background:linear-gradient(180deg,#c8c8cd 0%,#a9a9b0 55%,#97979e 100%);
     border-radius:12px;
     box-shadow:0 2px 0 #3a3a40, 0 3px 3px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.55);
   }
   .wings { display:flex; gap:2px; }
-  .wings button { height:26px; }
+  .wings .kb { height:26px; }
   .wings .wl { border-radius:14px 3px 3px 14px; }
   .wings .wr { border-radius:3px 14px 14px 3px; }
-  button { position:relative; }
+  .kb { position:relative; text-align:center; cursor:pointer; }
   /* invisible enlarged tap target: covers the gaps and legend strip around each key */
-  button::after { content:''; position:absolute; left:-5px; right:-5px; top:-11px; bottom:-5px; }
-  button:active, button.pressed {
+  /* 各キーに重ねる透明なスイッチ。iOS は指でスイッチを切り替えたときだけ振動するので、
+     キーを押す = このスイッチを切り替える、にして押した感触を出す。キーの周囲の隙間も覆う (押しやすさ)。 */
+  .kb .hap {
+    position:absolute; left:-5px; top:-11px; width:calc(100% + 10px); height:calc(100% + 16px);
+    margin:0; padding:0; opacity:0; cursor:pointer; -webkit-touch-callout:none;
+  }
+  .nohap .kb .hap { pointer-events:none; }
+  .kb::after { content:''; position:absolute; left:-5px; right:-5px; top:-11px; bottom:-5px; pointer-events:none; }
+  .kb.pressed {
     transform:translateY(2px) scale(.985);
     filter:brightness(1.32);
     box-shadow:0 .5px 0 #3a3a40 !important;
@@ -83,7 +90,7 @@
     gap:7px 8px; padding:0 1px;
     flex:1 1 auto; min-height:0; max-height:248px;
   }
-  .fngrid .kc button { flex:1 1 auto; height:auto; min-height:29px; max-height:44px; }
+  .fngrid .kc .kb { flex:1 1 auto; height:auto; min-height:29px; max-height:44px; }
   .npgrid {
     display:grid; grid-template-columns:1.15fr 1.15fr 1.15fr 1fr 1fr;
     grid-template-rows:repeat(4, minmax(55px, 1fr));
@@ -91,7 +98,7 @@
     flex:1 1 auto; min-height:0; max-height:390px;
   }
   .kc { display:flex; flex-direction:column; min-height:0; }
-  .npgrid .kc button { flex:1 1 auto; height:auto; min-height:42px; max-height:58px; }
+  .npgrid .kc .kb { flex:1 1 auto; height:auto; min-height:42px; max-height:58px; }
   .leg {
     height:13px; font-size:9px; font-weight:700; letter-spacing:.2px;
     display:flex; align-items:flex-end; justify-content:center; gap:4px;
@@ -103,14 +110,14 @@
   .br { position:relative; padding:0 4px; }
   .br::before { content:''; position:absolute; left:0; top:-1px; width:3px; height:5px; border-left:1.2px solid #8fd2e8; border-top:1.2px solid #8fd2e8; }
   .br::after  { content:''; position:absolute; right:0; top:-1px; width:3px; height:5px; border-right:1.2px solid #8fd2e8; border-top:1.2px solid #8fd2e8; }
-  .kc button {
+  .kc .kb {
     border:none; cursor:pointer; width:100%;
     color:#f3f4f7; font-family:inherit;
     display:flex; align-items:center; justify-content:center;
     touch-action:manipulation;
   }
-  .kc button sup { font-size:.6em; margin-top:-.7em; }
-  .kc button sub { font-size:.6em; margin-bottom:-.5em; }
+  .kc .kb sup { font-size:.6em; margin-top:-.7em; }
+  .kc .kb sub { font-size:.6em; margin-bottom:-.5em; }
   /* dark function keys */
   .fnk {
     height:31px; font-size:14.5px; font-weight:600; border-radius:8px;
@@ -148,13 +155,13 @@
     .bezel { padding:6px 8px; }
     .lcd { padding:3px 6px 5px; }
     .toprow { padding:6px 4px 7px; gap:8px; margin-bottom:5px; }
-    .tk button { height:19px; } .wings button { height:22px; }
+    .tk .kb { height:19px; } .wings .kb { height:22px; }
     .tk .tl { font-size:8.5px; height:10px; }
     .fngrid { gap:5px 7px; max-height:200px; }
-    .fngrid .kc button { min-height:26px; max-height:36px; }
+    .fngrid .kc .kb { min-height:26px; max-height:36px; }
     .leg { height:11px; font-size:8px; }
     .fnk { height:26px; font-size:12.5px; }
-    .npgrid .kc button { min-height:34px; max-height:48px; }
+    .npgrid .kc .kb { min-height:34px; max-height:48px; }
     .npgrid { grid-template-rows:repeat(4, minmax(46px, 1fr)); gap:5px 8px; padding-top:5px; max-height:320px; }
     .gk { font-size:19px; } .gk.op { font-size:21px; }
     .rk { font-size:13px; } .dk { font-size:13px; }
@@ -169,13 +176,13 @@
   <div class="bezel"><div class="lcd"><canvas id="cv"></canvas></div></div>
 
   <div class="toprow">
-    <div class="tk"><span class="tl y">SHIFT</span><button data-k="shift"></button></div>
-    <div class="tk"><span class="tl p">ALPHA</span><button data-k="alpha"></button></div>
+    <div class="tk"><span class="tl y">SHIFT</span><div class="kb" data-k="shift"></div></div>
+    <div class="tk"><span class="tl p">ALPHA</span><div class="kb" data-k="alpha"></div></div>
     <div class="tk"><span class="tl">◀&thinsp;REPLAY&thinsp;▶</span>
-      <div class="wings" style="width:100%"><button class="wl" data-k="left" style="flex:1"></button><button class="wr" data-k="right" style="flex:1"></button></div>
+      <div class="wings" style="width:100%"><div class="kb wl" data-k="left" style="flex:1"></div><div class="kb wr" data-k="right" style="flex:1"></div></div>
     </div>
-    <div class="tk"><span class="tl">MODE</span><button data-k="mode"></button></div>
-    <div class="tk"><span class="tl">OFF</span><button data-k="off"></button></div>
+    <div class="tk"><span class="tl">MODE</span><div class="kb" data-k="mode"></div></div>
+    <div class="tk"><span class="tl">OFF</span><div class="kb" data-k="off"></div></div>
   </div>
 
   <div class="fngrid" id="fngrid"></div>
@@ -259,8 +266,8 @@ function buildGrid(el, rows, defCls) {
   rows.forEach(r => r.forEach(d => {
     const kc = document.createElement('div'); kc.className = 'kc';
     const leg = document.createElement('div'); leg.className = 'leg'; leg.innerHTML = d.g || '';
-    const b = document.createElement('button'); b.type = 'button';
-    b.className = d.c || defCls; b.dataset.k = d.k; b.innerHTML = d.l;
+    const b = document.createElement('div');
+    b.className = 'kb ' + (d.c || defCls); b.dataset.k = d.k; b.innerHTML = d.l;
     kc.appendChild(leg); kc.appendChild(b); el.appendChild(kc);
   }));
 }
@@ -887,7 +894,7 @@ const SHIFT = {
   ans: () => { menu = { page: 2 }; },
   eq: () => insOp('%'),
   dot: () => insTok('Ran#'),
-  off: () => { fbOn = !fbOn; saveFb(); },
+  off: () => { fbOn = !fbOn; saveFb(); document.body.classList.toggle('nohap', !fbOn); },
 };
 const ALPHA = {};
 for (const k in LETKEY) ALPHA[k] = (L => () => insTok(L))(LETKEY[k]);
@@ -939,17 +946,7 @@ function saveFb() { try { localStorage.setItem('calc_fb', fbOn ? '1' : '0'); } c
 let ac = null;
 function feedback() {
   if (!fbOn) return;
-  // haptic: iOS 17.4+ switch trick / Android vibrate
-  // iOS はスイッチ型チェックボックスが切り替わるときに「コツッ」と振動する。input を直接 click() しても
-  // 振動しないので、紐づく label のほうを click する (毎回作って捨てる)。
-  try {
-    const lb = document.createElement('label'), sw = document.createElement('input');
-    lb.setAttribute('aria-hidden', 'true'); lb.style.display = 'none';
-    sw.type = 'checkbox'; sw.setAttribute('switch', '');
-    lb.appendChild(sw); document.head.appendChild(lb);
-    lb.click();
-    document.head.removeChild(lb);
-  } catch (e) {}
+  // iPhone の振動はキーに重ねた透明スイッチ (.hap) が受け持つ。ここは Android 用
   try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) {}
   // short mechanical click
   try {
@@ -969,11 +966,16 @@ function feedback() {
    wiring (long-press repeat on DEL / ◀ / ▶)
 ============================================================ */
 const REPEAT_KEYS = { del: 1, left: 1, right: 1 };
-document.querySelectorAll('button[data-k]').forEach(b => {
+document.body.classList.toggle('nohap', !fbOn);
+document.querySelectorAll('.kb[data-k]').forEach(b => {
+  const hp = document.createElement('input');
+  hp.type = 'checkbox'; hp.setAttribute('switch', ''); hp.className = 'hap'; hp.tabIndex = -1;
+  hp.setAttribute('aria-hidden', 'true');
+  b.appendChild(hp);
   let delayT = null, repT = null;
   const stopRepeat = () => { clearTimeout(delayT); clearInterval(repT); delayT = repT = null; };
   b.addEventListener('pointerdown', e => {
-    e.preventDefault();
+    if (e.target !== hp) e.preventDefault();   // スイッチ本来の動作 (切り替え → 振動) は止めない
     b.classList.add('pressed');
     feedback();
     press(b.dataset.k);
@@ -1005,7 +1007,8 @@ document.addEventListener('keydown', e => {
 let lastTouch = 0;
 document.addEventListener('touchend', e => {
   const now = Date.now();
-  if (now - lastTouch < 350) e.preventDefault();
+  // 連打時のダブルタップ拡大を止める。キー上のスイッチは止めると振動しなくなるので除く
+  if (now - lastTouch < 350 && !(e.target && e.target.classList && e.target.classList.contains('hap'))) e.preventDefault();
   lastTouch = now;
 }, { passive: false });
 
@@ -1021,7 +1024,7 @@ drawAll();
    ホーム画面の Web アプリは開きっぱなしになり、公開側を更新しても古い画面のままになる。
    画面が表に出るたびに公開中のファイルの BUILD を見て、違っていたら読み込み直す。
    BUILD は publish.py が公開のたびに書き換える。 */
-const BUILD = '20261116-113454';
+const BUILD = '20261116-115414';
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
 let updBusy = false;
 async function checkUpdate() {
